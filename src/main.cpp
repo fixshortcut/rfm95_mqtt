@@ -10,8 +10,8 @@
 
 const char* ssid = "WIDYA ROBOTIC";
 const char* password = "011118WidyaWII";
-const char* ssid2 = "WIDYA ROBOTIC";
-const char* password2 = "011118WidyaWII";
+const char* ssid2 = "ndang turu!";
+const char* password2 = "ragelemturu";
 
 const char* mqtt_server = "192.168.18.85"; // mqtt broker ip 
 const char* mqtt_server2 = "192.168.0.102";
