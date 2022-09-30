@@ -56,12 +56,15 @@ void callback(char* topic, byte* message, unsigned int length) { //receive data
     Serial.print("Changing output to ");
     if(messageTemp == "on"){
       Serial.println("on");
+      LoRa.beginPacket();
+      LoRa.printf("sendPub");
+      LoRa.endPacket();
       // digitalWrite(ledPin, HIGH);
     }
-    else if(messageTemp == "off"){
-      Serial.println("off");
-      // digitalWrite(ledPin, LOW);
-    }
+    // else if(messageTemp == "off"){
+    //   Serial.println("off");
+    //   // digitalWrite(ledPin, LOW);
+    // }
   }
 }
 
@@ -150,6 +153,17 @@ void loop() {
       sen1 = LoRaData.substring(indexS1 + sens1.length(),indexComma);
       sen2 = LoRaData.substring(indexS2 + sens2.length(),indexS2 + sens2.length()+ 3);
       Serial.printf("sensor1 = %s , sensor2 = %s \n",sen1,sen2);
+
+      const char *strSen1 = sen1.c_str();
+      const char *strSen2 = sen2.c_str();
+      Serial.println(client.publish("esp32/sensor1", strSen1));
+      Serial.println(client.publish("esp32/sensor2", strSen2));
+
+      Serial.print("sensor2 :");
+      Serial.print(strSen1);
+      Serial.print("| sensor2 : ");
+      Serial.println(strSen2);
+    
     }
     
 
@@ -164,19 +178,5 @@ void loop() {
     reconnect();
   }
   client.loop();
-  if (millis() - waktuPesan >= 5000) {
-    waktuPesan = millis();
 
-    const char *strSen1 = sen1.c_str();
-    const char *strSen2 = sen2.c_str();
-    Serial.println(client.publish("esp32/sensor1", strSen1));
-    Serial.println(client.publish("esp32/sensor2", strSen2));
-
-    Serial.print("sensor2 :");
-    Serial.print(strSen1);
-    Serial.print("| sensor2 : ");
-    Serial.println(strSen2);
-    
-  }
-  
 }
