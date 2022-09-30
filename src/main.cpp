@@ -8,12 +8,18 @@
 #define rst 14
 #define dio0 2
 
-const char* ssid = "WIDYA ROBOTIC";
-const char* password = "011118WidyaWII";
+// const char* ssid = "WIDYA ROBOTIC";
+// const char* password = "011118WidyaWII";
+const char* ssid = "WIDYA ROBOTICS";
+const char* password = "011118widya";
+// const char* ssid = "KAMEKATRON";
+// const char* password = "terserahkamu";
 const char* ssid2 = "ndang turu!";
 const char* password2 = "ragelemturu";
 
-const char* mqtt_server = "192.168.18.85"; // mqtt broker ip 
+// const char* mqtt_server = "192.168.111.86"; // mqtt broker ip
+// const char* mqtt_server = "192.168.18.85"; //mekatron
+const char* mqtt_server = "192.168.18.52"; //widya robotics
 const char* mqtt_server2 = "192.168.0.102";
 
 const int id_wifi = 1;
@@ -64,27 +70,19 @@ void setup_wifi() {
   // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
-  if (id_wifi == 1){
-    Serial.println(ssid);
-    WiFi.begin(ssid, password);
-  }else if (id_wifi == 2){
-    Serial.println(ssid2);
-    WiFi.begin(ssid2, password2);
-  }
-  
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+    
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
 
   Serial.println("");
-  Serial.printf("ip : %d \n",WiFi.localIP());
-  if (id_wifi == 1){
-    client.setServer(mqtt_server, 1883);
-  }else if(id_wifi == 2){
-    client.setServer(mqtt_server2, 1883);
-  }
-  
+  Serial.print("ip :");
+  Serial.println(WiFi.localIP());
+  client.setServer(mqtt_server, 1883);
+   
   client.setCallback(callback);
 }
 
@@ -93,7 +91,7 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (client.connect("ESP32Client")) {
+    if (client.connect("esp32Client")) {
       Serial.println("connected");
       // Subscribe
       client.subscribe("esp32/output");
@@ -139,7 +137,7 @@ void loop() {
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
     // received a packet
-    Serial.print("Received packet '");
+    Serial.print("Lora: ");
 
     // read packet
     while (LoRa.available()) {
@@ -151,32 +149,34 @@ void loop() {
   
       sen1 = LoRaData.substring(indexS1 + sens1.length(),indexComma);
       sen2 = LoRaData.substring(indexS2 + sens2.length(),indexS2 + sens2.length()+ 3);
+      Serial.printf("sensor1 = %s , sensor2 = %s \n",sen1,sen2);
     }
     
 
 
     // print RSSI of packet
-    Serial.print("' with RSSI ");
-    Serial.println(LoRa.packetRssi());
-    Serial.printf("sensor1 = %s , sensor2 = %s \n",sen1,sen2);
+    // Serial.print("' with RSSI ");
+    // Serial.println(LoRa.packetRssi());
+    
   }
   
   if(!client.connected()){
     reconnect();
   }
   client.loop();
-  if (millis() - lastMsg > 5000) {
-    lastMsg = millis();
+  if (millis() - waktuPesan >= 5000) {
+    waktuPesan = millis();
 
-    char strSen1[8];
-    dtostrf(sen1,1,2,strSen1);
-    Serial.printf("sensor2 : %c\n",strSen1);
-    client.publish("esp32/sensor1", strSen1);
+    const char *strSen1 = sen1.c_str();
+    const char *strSen2 = sen2.c_str();
+    Serial.println(client.publish("esp32/sensor1", strSen1));
+    Serial.println(client.publish("esp32/sensor2", strSen2));
 
-    char strSen2[8];
-    dtostrf(sen2, 1, 2, strSen2);
-    Serial.printf("sensor2 : %c\n",strSen2);
-    client.publish("esp32/sensor2", strSen2);
+    Serial.print("sensor2 :");
+    Serial.print(strSen1);
+    Serial.print("| sensor2 : ");
+    Serial.println(strSen2);
+    
   }
   
 }
